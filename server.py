@@ -56,9 +56,12 @@ def main(argv):
             confJson['port'] = a
 
 
-if __name__ == '__main__':
+def server(argv):
+    # config
     load_config()
-    main(sys.argv[1:])
+
+    # parse optons
+    main(argv)
     print("Server start: ", confJson['addr'], ':', confJson['port'])
 
     try:
@@ -90,3 +93,7 @@ if __name__ == '__main__':
         except Exception as ex:
             print("Server fault: ", ex)
             sys.exit(-1)
+
+
+if __name__ == '__main__':
+    server(sys.argv[1:])

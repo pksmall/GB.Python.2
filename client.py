@@ -29,9 +29,10 @@ def load_config():
         confJson = json.loads(f_n_content)
 
 
-def date(unixtime, format = '%Y-%m-%d %H:%M:%S'):
+def date(unixtime, format='%Y-%m-%d %H:%M:%S'):
     d = datetime.datetime.fromtimestamp(unixtime)
     return d.strftime(format)
+
 
 def usage():
     print('Usage: ', sys.argv[0], "-a <addr> -p <port>")
@@ -61,26 +62,34 @@ def main(argv):
             confJson['port'] = a
 
 
-if __name__ == '__main__':
+def client(argv):
+    # config
     load_config()
-    main(sys.argv[1:])
+
+    # parse options
+    main(argv)
+
     try:
         s = socket(AF_INET, SOCK_STREAM)  # Создать сокет TCP
         s.connect((confJson['addr'], confJson['port']))   # Соединиться с сервером
 
-        recvData = {"action": "presence", "time": time.time(), "type": "status",
+        recv_data = {"action": "presence", "time": time.time(), "type": "status",
                     "user": {"account_name":  "C0deMaver1ck", "status":"Yep, I am here!"}}
-        msg = json.dumps(recvData)
+        msg = json.dumps(recv_data)
         s.send(str(msg).encode("utf-8"))
         data = s.recv(1000000)
-        dataJson = json.loads(data.decode("utf-8"))
-        if dataJson:
-            if 'action' in dataJson and dataJson['action'] == 'probe':
-                print('Действие сервера: ', dataJson['action'], ', Время: ', date(dataJson['time']),
+        data_json = json.loads(data.decode("utf-8"))
+        if data_json:
+            if 'action' in data_json and data_json['action'] == 'probe':
+                print('Действие сервера: ', data_json['action'], ', Время: ', date(data_json['time']),
                       ', Длина сообщения: ', len(data), ' байт')
-            elif 'response' in dataJson:
-                print('Сервер прислал: ', dataJson['response'], ', Сообщение: ', dataJson['alert'],
+            elif 'response' in data_json:
+                print('Сервер прислал: ', data_json['response'], ', Сообщение: ', data_json['alert'],
                       ', Длина сообщения: ', len(data), ' байт')
     except Exception as ex:
         print('Connection Message:', ex)
         usage()
+
+
+if __name__ == '__main__':
+    client(sys.argv[1:])
