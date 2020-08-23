@@ -15,13 +15,14 @@ addr — ip-адрес сервера; port — tcp-порт на сервере
 (по умолчанию использует 7777); -a <addr> — IP-адрес для прослушивания (по умолчанию слушает все доступные адреса).
 '''
 
-
+@logwrapper
 def usage():
     print('Usage: ', sys.argv[0], "-a <addr> -p <port>")
     print("Defaults: addr - ", confJson['addr'])
     print("\t\t  port - ", confJson['port'])
 
 
+@logwrapper
 def main(argv):
     global addr, port
 
@@ -43,7 +44,7 @@ def main(argv):
         elif o in ("-p", "--port"):
             confJson['port'] = a
 
-
+@logwrapper
 def client(argv):
     # parse options
     main(argv)

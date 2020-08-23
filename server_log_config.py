@@ -22,6 +22,21 @@ logger.addHandler(time_handler)
 logger.setLevel(logging.DEBUG)
 
 
+def logwrapper(func_to_deco):
+    # Данная "обёртка" принимает любые аргументы
+    def logwrapper_with_args(*args, **kwargs):
+        print(' запустили из функции ( %s ) ' % func_to_deco)
+        logger.info(' запустили из функции ( {} ) '.format(func_to_deco))
+
+        print("Передали ли мне что-нибудь?:")
+        logger.info("Передали ли мне что-нибудь?:")
+
+        print(func_to_deco, args, kwargs)
+        logger.info(func_to_deco, args, kwargs)
+        func_to_deco(*args, **kwargs)
+    return logwrapper_with_args()
+
+
 def set_logging(level):
     # Создаем потоковый обработчик логирования (по умолчанию sys.stderr):
     console = logging.StreamHandler()
