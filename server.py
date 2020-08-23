@@ -1,10 +1,9 @@
 # GB Python2 lession 3
 #
 import getopt
-import json
 import sys
 from socket import *
-import time
+from server_log_config import *
 
 '''
 клиент отправляет запрос серверу;
@@ -15,17 +14,6 @@ addr — ip-адрес сервера; port — tcp-порт на сервере
 формирует ответ клиенту; отправляет ответ клиенту; имеет параметры командной строки: -p <port> — TCP-порт для работы
 (по умолчанию использует 7777); -a <addr> — IP-адрес для прослушивания (по умолчанию слушает все доступные адреса).
 '''
-
-CONF_FILE = '.config.json'
-confJson = None
-
-
-def load_config():
-    global confJson
-
-    with open("./" + CONF_FILE) as f_n:
-        f_n_content = f_n.read()
-        confJson = json.loads(f_n_content)
 
 
 def usage():
@@ -57,18 +45,17 @@ def main(argv):
 
 
 def server(argv):
-    # config
-    load_config()
-
     # parse optons
     main(argv)
     print("Server start: ", confJson['addr'], ':', confJson['port'])
+    logger.info("Server start: {} : {}".format(confJson['addr'], confJson['port']))
 
     try:
         s = socket(AF_INET, SOCK_STREAM)  # Создает сокет TCP
         s.bind((confJson['addr'], confJson['port']))
         s.listen(5)
     except Exception as ex:
+        loger.critical('Server fault: {}'.format(ex))
         print("Server fault: ", ex)
         sys.exit(-1)
 
@@ -82,15 +69,19 @@ def server(argv):
                     recvData = {"action": "probe", "time": time.time()}
                     msg = json.dumps(recvData)
                     client.send(str(msg).encode("utf-8"))
+                    logger.info("Message send to client: {}".format(msg))
                 else:
                     recvData = {"response": 200, "alert": "Необязательное сообщение/уведомление"}
                     msg = json.dumps(recvData)
                     client.send(str(msg).encode("utf-8"))
+                    logger.info("Send alert to client: {}".format(msg))
             else:
                 recvData = {"response": 400, "alert": "неправильный запрос/JSON-объект"}
                 msg = json.dumps(recvData)
                 client.send(str(msg).encode("utf-8"))
+                logger.info("Send alert to client: {}".format(msg))
         except Exception as ex:
+            logger.critical('Message: {}'.format(ex))
             print("Server fault: ", ex)
             sys.exit(-1)
 
